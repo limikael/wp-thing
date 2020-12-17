@@ -22,18 +22,28 @@ switch ($path[0]) {
 		break;
 
 	case "test":
-		$data=array(
-			"fields"=>array(
-				array(
-					"key"=>"one"
-				),
+		switch ($path[1]) {
+			case "status":
+				$data=array(
+					"fields"=>array(
+						array(
+							"key"=>"one",
+							"type"=>"text",
+							"name"=>"One",
+							"value"=>"hello"
+						),
 
-				array(
-					"key"=>"two"
-				),
-			),
-		);
-		echo json_encode($data,JSON_PRETTY_PRINT);
+						array(
+							"key"=>"two",
+							"type"=>"text",
+							"name"=>"Two",
+							"value"=>"world"
+						),
+					),
+				);
+				echo json_encode($data,JSON_PRETTY_PRINT);
+				break;
+		}
 		break;
 
 	default:

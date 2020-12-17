@@ -10,28 +10,90 @@ class ThingController extends Singleton {
 		add_action("init",array($this,"init"));
 		add_action("add_meta_boxes",array($this,"add_meta_boxes"));
 		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
+		add_filter("cmb2_render_schedule",array($this,"cmb2_render_schedule"),10,5);
 	}
 
-	public function cmb2_admin_init() {
-		$cmb=new_cmb2_box(array(
-			"id"=>"thing_settings",
-			"title"=>__("Settings","thing"),
-			"object_types"=>array("thing"),
-			'context'       => 'normal',
-		));
+	function cmb2_render_schedule($field, $value, $object_id, $object_type, $field_type) {
+/*		echo $field_type_object->input( array(
+        	'name'  => $field_type_object->_name( '[book-name]' ),
+        	// 'id'    => $field_type_object->_id( '_book_name' ),
+       		'value' => $value['book-name'],
+	   		'placeholder' => 'Name',
+	   		"type"=>"select"
+    	) );*/
 
-		// Regular text field
-		$cmb->add_field( array(
-			'name'       => __( 'Test Text', 'cmb2' ),
-			'desc'       => __( 'field description (optional)', 'cmb2' ),
-			'id'         => 'yourprefix_text',
-			'type'       => 'text',
-		));
+    	echo $field_type->select(array(
+    		"options"=>
+    			"<option>Every Day</option>".
+    			"<option>Every Hour</option>".
+    			"<option>Every Minute</option>"
+    	));
+	}
 
+	function cmb2_admin_init() {
 		$currentThing=Thing::getCurrent();
-		if ($currentThing) {
-			$currentThing->getSettingsFields();
+		if (!$currentThing)
+			return;
+
+		$box_options = array(
+			'id' => 'thingsettings',
+			'title' => "Thing Settings",
+			'object_types' => array( 'thing' ),
+			'show_names'   => true,
+		);
+
+		$cmb = new_cmb2_box($box_options);
+
+		$tabs_setting = array(
+			'config' => $box_options,
+			'tabs'   => array()
+		);
+
+		foreach ($currentThing->getTabNames() as $tabName) {
+			$tab=array(
+				"id"=>sanitize_title($tabName),
+				"title"=>$tabName,
+				"fields"=>array(),
+			);
+
+			foreach ($currentThing->getFieldsByTabName($tabName) as $field)
+				$tab["fields"][]=$field->getCmbDef();
+
+			$tabs_setting["tabs"][]=$tab;
 		}
+
+		$cmb->add_field(array(
+			'id'   => '__tabs',
+			'type' => 'tabs',
+			'tabs' => $tabs_setting,
+		));
+	}
+
+	public function cmb2_save_post_fields($id) {
+		if ($id!=Thing::getCurrent()->getId())
+			return;
+
+		Thing::getCurrent()->save();
+	}
+
+	public function cmb2_override_meta_value($data, $id, $a, $field) {
+		if ($id!=Thing::getCurrent()->getId())
+			return $data;
+
+		$field=Thing::getCurrent()->getFieldByKey($a["field_id"]);
+		if (!$field)
+			return $data;
+
+		return $field->getValue();
+	}
+
+	public function cmb2_override_meta_save($override, $a, $args, $field) {
+		if ($a["id"]!=Thing::getCurrent()->getId())
+			return NULL;
+
+		$field=Thing::getCurrent()->getFieldByKey($a["field_id"]);
+		$field->updateValue($a["value"]);
+		return TRUE;
 	}
 
 	public function add_meta_boxes() {

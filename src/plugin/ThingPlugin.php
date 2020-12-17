@@ -18,8 +18,6 @@ class ThingPlugin extends Singleton {
 	}
 
 	public function cmb2_meta_box_url($url) {
-		error_log("changing url: ".$url);
-
 		if (strpos($url,"wp-thing"))
 			$url=THING_URL."/ext/CMB2/";
 
@@ -33,6 +31,10 @@ class ThingPlugin extends Singleton {
 
 		wp_enqueue_style("thing-style",
 			THING_URL."/css/thing.css");
+
+		wp_enqueue_script("cmb2-conditional-logic",
+			THING_URL."/js/cmb2-conditional-logic.js",
+			array("jquery"),"1.0.0",true);
 	}
 
 	public function brokerCall($url, $params=array()) {
@@ -52,7 +54,7 @@ class ThingPlugin extends Singleton {
 		$res=json_decode($encoded,TRUE);
 
 		if (!$res/* || !array_key_exists("ok",$res) || !$res["ok"]*/) {
-			throw new \Exception("Unable to perform API call: ".$encoded);
+			throw new \Exception("Unable to perform API call: ".$url.": ".$encoded);
 		}
 
 		return $res;

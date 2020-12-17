@@ -352,6 +352,7 @@ class CMB2_Field extends CMB2_Base {
 		 *
 		 * @since 2.0.0
 		 */
+		//error_log("calling override for save..");
 		$override = apply_filters( "cmb2_override_{$a['field_id']}_meta_save", $override, $a, $this->args(), $this );
 
 		// If override, return that.

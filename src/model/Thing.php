@@ -2,7 +2,11 @@
 
 namespace thing;
 
+require_once __DIR__."/ThingField.php";
+
 class Thing {
+
+	private static $currentThing;
 
 	/**
 	 * Constructor.
@@ -15,28 +19,114 @@ class Thing {
 	 * Get the current thing being viewed or edited.
 	 */
 	static function getCurrent() {
-		global $post;
+		if (!Thing::$currentThing) {
+			global $post;
 
-		if (isset($_GET['post']))
-			$usePost=get_post($_GET['post']);
+			if (isset($_GET['post']))
+				$usePost=get_post($_GET['post']);
 
-		else if (isset($_POST['post_ID']))
-			$usePost=get_post($_POST['post_ID']);
+			else if (isset($_POST['post_ID']))
+				$usePost=get_post($_POST['post_ID']);
 
-		else if ($post)
-			$usePost=$post;
+			else if ($post)
+				$usePost=$post;
 
-		if ($usePost && $usePost->post_type=="thing")
-			return new Thing($usePost);
+			if ($usePost && $usePost->post_type=="thing")
+				Thing::$currentThing=new Thing($usePost);
 
-		else
-			return null;
+			else
+				Thing::$currentThing=null;
+		}
+
+		return Thing::$currentThing;
+	}
+
+	/**
+	 * Make call to broker.
+	 */
+	public function brokerCall($call, $params=array()) {
+		$url=$this->post->post_title."/".$call;
+		return ThingPlugin::instance()->brokerCall($url,$params);
+	}
+
+	/**
+	 * Get id.
+	 */
+	public function getId() {
+		return $this->post->ID;
+	}
+
+	/**
+	 * Init fields.
+	 */
+	private function initFields() {
+		if (is_array($this->fields))
+			return;
+
+		$status=$this->brokerCall("status");
+
+		$this->fields=array();
+		$this->fieldsByKey=array();
+		$this->fieldsByTabName=array();
+
+		if ($status["fields"])
+			foreach ($status["fields"] as $fieldData) {
+				$field=new ThingField($fieldData);
+
+				$this->fields[]=$field;
+				$this->fieldsByKey[$field->getKey()]=$field;
+
+				$tabName=$field->getTabName();
+				if ($tabName)
+					$this->fieldsByTabName[$tabName][]=$field;
+			}
 	}
 
 	/**
 	 * Query remote device for settings fields.
 	 */
-	public function getSettingsFields() {
-		$res=ThingPlugin::brokerCall("test");
+	public function getFields() {
+		$this->initFields();
+
+		return $this->fields;
+	}
+
+	/**
+	 * Get field by key.
+	 */
+	public function getFieldByKey($key) {
+		$this->initFields();
+
+		return $this->fieldsByKey[$key];
+	}
+
+	/**
+	 * Save updated fields.
+	 */
+	public function save() {
+		$saveData=array();
+
+		foreach ($this->fields as $field) {
+			if ($field->isUpdated())
+				$saveData[$field->getKey()]=$field->getValue();
+		}
+
+		$this->brokerCall("update",$saveData);
+	}
+
+	/**
+	 * Get tab names.
+	 */
+	public function getTabNames() {
+		$this->initFields();
+
+		return array_keys($this->fieldsByTabName);
+	}
+
+	/**
+	 * Get fields for tab.
+	 */
+	public function getFieldsByTabName($tabName) {
+		return $this->fieldsByTabName[$tabName];
 	}
 }
