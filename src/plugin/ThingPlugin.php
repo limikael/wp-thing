@@ -11,15 +11,28 @@ class ThingPlugin extends Singleton {
 		ThingController::instance();
 
 		add_filter("cmb2_meta_box_url",array($this,"cmb2_meta_box_url"));
+		add_action("admin_enqueue_scripts",array($this,"enqueue_scripts"));
 
-		if ( is_admin() )
+		if (is_admin())
 			ThingSettings::instance();
 	}
 
-	public function cmb2_meta_box_url() {
-		$url=THING_URL."/ext/CMB2/";
+	public function cmb2_meta_box_url($url) {
+		error_log("changing url: ".$url);
+
+		if (strpos($url,"wp-thing"))
+			$url=THING_URL."/ext/CMB2/";
 
 		return $url;
+	}
+
+	public function enqueue_scripts() {
+		wp_enqueue_script("thing",
+			THING_URL."/js/thing.js",
+			array("jquery"),"1.0.0",true);
+
+		wp_enqueue_style("thing-style",
+			THING_URL."/css/thing.css");
 	}
 
 	public function brokerCall($url, $params=array()) {

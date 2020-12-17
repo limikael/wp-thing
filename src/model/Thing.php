@@ -38,6 +38,5 @@ class Thing {
 	 */
 	public function getSettingsFields() {
 		$res=ThingPlugin::brokerCall("test");
-		error_log(print_r($res,TRUE));
 	}
 }
