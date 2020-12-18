@@ -74,7 +74,7 @@ class ThingField {
 		if ($this->data["conditionKey"]) {
 			$fieldData['attributes']=array(
 				'data-conditional-id'=>$this->data["conditionKey"],
-				'data-conditional-value'=>$this->data["conditionValue"],
+				'data-conditional-value'=>wp_json_encode($this->data["conditionValue"])
 			);
 		}
 
