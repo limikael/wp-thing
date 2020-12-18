@@ -108,7 +108,7 @@ class Thing {
 
 		foreach ($this->fields as $field) {
 			if ($field->isUpdated())
-				$saveData[$field->getKey()]=$field->getValue();
+				$saveData[$field->getKey()]=json_encode($field->getValue());
 		}
 
 		$this->brokerCall("update",$saveData);

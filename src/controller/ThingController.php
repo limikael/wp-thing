@@ -10,24 +10,10 @@ class ThingController extends Singleton {
 		add_action("init",array($this,"init"));
 		add_action("add_meta_boxes",array($this,"add_meta_boxes"));
 		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
-		add_filter("cmb2_render_schedule",array($this,"cmb2_render_schedule"),10,5);
-	}
 
-	function cmb2_render_schedule($field, $value, $object_id, $object_type, $field_type) {
-/*		echo $field_type_object->input( array(
-        	'name'  => $field_type_object->_name( '[book-name]' ),
-        	// 'id'    => $field_type_object->_id( '_book_name' ),
-       		'value' => $value['book-name'],
-	   		'placeholder' => 'Name',
-	   		"type"=>"select"
-    	) );*/
-
-    	echo $field_type->select(array(
-    		"options"=>
-    			"<option>Every Day</option>".
-    			"<option>Every Hour</option>".
-    			"<option>Every Minute</option>"
-    	));
+		add_filter('cmb2_override_meta_value',array($this,'cmb2_override_meta_value'),10,4);
+		add_filter('cmb2_override_meta_save',array($this,'cmb2_override_meta_save'),10,4);
+		add_action('cmb2_save_post_fields',array($this,'cmb2_save_post_fields'),10,1);
 	}
 
 	function cmb2_admin_init() {
@@ -84,7 +70,7 @@ class ThingController extends Singleton {
 		if (!$field)
 			return $data;
 
-		return $field->getValue();
+		return $field->getCmb2Value();
 	}
 
 	public function cmb2_override_meta_save($override, $a, $args, $field) {
@@ -92,7 +78,7 @@ class ThingController extends Singleton {
 			return NULL;
 
 		$field=Thing::getCurrent()->getFieldByKey($a["field_id"]);
-		$field->updateValue($a["value"]);
+		$field->updateValueWithCmb2Data($a["value"]);
 		return TRUE;
 	}
 

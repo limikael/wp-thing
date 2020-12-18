@@ -4,11 +4,17 @@ namespace thing;
 
 require_once __DIR__."/../utils/Singleton.php";
 require_once __DIR__."/../controller/ThingController.php";
+require_once __DIR__."/../controller/OtherThingController.php";
 require_once __DIR__."/ThingSettings.php";
+require_once __DIR__."/Cmb2IntervalTimerField.php";
+require_once __DIR__."/Cmb2DurationField.php";
 
 class ThingPlugin extends Singleton {
 	protected function __construct() {
 		ThingController::instance();
+		//OtherThingController::instance();
+		Cmb2IntervalTimerField::instance();
+		Cmb2DurationField::instance();
 
 		add_filter("cmb2_meta_box_url",array($this,"cmb2_meta_box_url"));
 		add_action("admin_enqueue_scripts",array($this,"enqueue_scripts"));

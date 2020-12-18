@@ -38,9 +38,9 @@ class ThingField {
 				);
 				break;
 
-			case "schedule":
+			case "intervaltimer":
 				$fieldData=array(
-					"type"=>"schedule",
+					"type"=>"intervaltimer",
 					"name"=>$this->data["name"],
 					"id"=>$id,
 					"repeatable"=>TRUE,
@@ -50,13 +50,24 @@ class ThingField {
 				);
 				break;
 
+			case "duration":
+				$fieldData=array(
+					"type"=>"duration",
+					"name"=>$this->data["name"],
+					"id"=>$id,
+				);
+				break;
+
 			case "text":
-			default:
 				$fieldData=array(
 					"type"=>"text",
 					"name"=>$this->data["name"],
 					"id"=>$id
 				);
+				break;
+
+			default:
+				throw new \Exception("Unknown field type: ".$this->data["type"]);
 				break;
 		}
 
@@ -67,12 +78,31 @@ class ThingField {
 			);
 		}
 
-//		$cmb2->add_field($fieldData);
 		return $fieldData;
 	}
 
 	/**
 	 * Get the value for CMB2.
+	 */
+	public function getCmb2Value() {
+		switch ($this->data["type"]) {
+			case "duration":
+				$secs=floor($this->data["value"]/1000);
+
+				return array(
+					"minutes"=>floor($secs/60),
+					"seconds"=>$secs%60,
+				);
+				break;
+
+			default:
+				return $this->data["value"];
+				break;
+		}
+	}
+
+	/**
+	 * Get value to be sent to device.
 	 */
 	public function getValue() {
 		return $this->data["value"];
@@ -81,7 +111,13 @@ class ThingField {
 	/**
 	 * Save value.
 	 */
-	public function updateValue($value) {
+	public function updateValueWithCmb2Data($value) {
+		switch ($this->data["type"]) {
+			case "duration":
+				$value=$value["minutes"]*60*1000+$value["seconds"]*1000;
+				break;
+		}
+
 		$this->data["value"]=$value;
 		$this->updated=TRUE;
 	}

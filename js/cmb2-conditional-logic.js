@@ -11,8 +11,6 @@
     'use strict'
 
     function CMB2Conditional() {
-                console.log("here...");
-
         $('[data-conditional-id]').each( (i, el) => { 
             let condName    = el.dataset.conditionalId,
                 condValue   = el.dataset.conditionalValue,
@@ -88,9 +86,6 @@
 
     // Trigger again when new group added
     $( '.cmb2-wrap > .cmb2-metabox' ).on( 'cmb2_add_row', function() {
-
-        console.log("cond by group...");
-
         CMB2Conditional();
 
     });
