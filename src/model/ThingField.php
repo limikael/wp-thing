@@ -45,6 +45,18 @@ class ThingField {
 				);
 				break;
 
+			case "boolean":
+				$fieldData=array(
+					"type"=>"select",
+					"name"=>$this->data["name"],
+					"id"=>$id,
+					"options"=>array(
+						"false"=>"Off",
+						"true"=>"On"
+					)
+				);
+				break;
+
 			case "intervaltimer":
 				$fieldData=array(
 					"type"=>"intervaltimer",
@@ -114,6 +126,14 @@ class ThingField {
 					"minutes"=>floor($secs/60),
 					"seconds"=>$secs%60,
 				);
+				break;
+
+			case "boolean":
+				if ($this->data["value"])
+					return "true";
+
+				else
+					return "false";
 				break;
 
 			default:
