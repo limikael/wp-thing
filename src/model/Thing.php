@@ -16,6 +16,17 @@ class Thing {
 	}
 
 	/**
+	 * Get thing by id.
+	 */
+	static function getByTitle($title) {
+		$post=get_page_by_title($title,OBJECT,"thing");
+		if ($post->post_type=="thing")
+			return new Thing($post);
+
+		return null;
+	}
+
+	/**
 	 * Get the current thing being viewed or edited.
 	 */
 	static function getCurrent() {
@@ -89,6 +100,19 @@ class Thing {
 		$this->initFields();
 
 		return $this->fields;
+	}
+
+	/**
+	 * Get loggable fields.
+	 */
+	public function getLogFields() {
+		$fields=[];
+
+		foreach ($this->fields as $field)
+			if ($field->isLoggable())
+				$fields[]=$field;
+
+		return $fields;
 	}
 
 	/**

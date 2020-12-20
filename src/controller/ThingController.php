@@ -90,6 +90,7 @@ class ThingController extends Singleton {
 			array($this,"custom_submit_box"),
 			'thing','side'
 		);
+
 	}
 
 	public function custom_submit_box() { 

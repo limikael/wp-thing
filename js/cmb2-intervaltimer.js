@@ -14,8 +14,6 @@
 	}
 
 	function updateIntervalTimerFields() {
-		console.log("blabla...");
-
 		$(".cmb2-intervaltimer").each(function() {
 			$(this).children(".it-interval").off("change",updateIntervalTimerFields);
 			$(this).children(".it-interval").on("change",updateIntervalTimerFields);

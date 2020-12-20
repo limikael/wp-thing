@@ -17,4 +17,8 @@ class HtmlUtil {
 
 		return $res;
 	}
+
+	static function display_select_options($options, $current=NULL) {
+		echo HtmlUtil::render_select_options($options,$current);
+	}
 }

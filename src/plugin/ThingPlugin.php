@@ -4,6 +4,8 @@ namespace thing;
 
 require_once __DIR__."/../utils/Singleton.php";
 require_once __DIR__."/../controller/ThingController.php";
+require_once __DIR__."/../controller/ThingDataController.php";
+require_once __DIR__."/../model/ThingData.php";
 require_once __DIR__."/../controller/OtherThingController.php";
 require_once __DIR__."/ThingSettings.php";
 require_once __DIR__."/Cmb2IntervalTimerField.php";
@@ -11,6 +13,7 @@ require_once __DIR__."/Cmb2DurationField.php";
 
 class ThingPlugin extends Singleton {
 	protected function __construct() {
+		ThingDataController::instance();
 		ThingController::instance();
 		//OtherThingController::instance();
 		Cmb2IntervalTimerField::instance();
@@ -23,6 +26,14 @@ class ThingPlugin extends Singleton {
 			ThingSettings::instance();
 	}
 
+	public function activate() {
+		ThingData::install();
+	}
+
+	public function uninstall() {
+		ThingData::uninstall();
+	}
+
 	public function cmb2_meta_box_url($url) {
 		if (strpos($url,"wp-thing"))
 			$url=THING_URL."/ext/CMB2/";
@@ -31,9 +42,13 @@ class ThingPlugin extends Singleton {
 	}
 
 	public function enqueue_scripts() {
-		wp_enqueue_script("thing",
+		wp_enqueue_script('charts-bundle',
+			'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js',
+			array('jquery'),"2.9.3",true);
+
+		wp_enqueue_script("thing-js",
 			THING_URL."/js/thing.js",
-			array("jquery"),"1.0.0",true);
+			array("jquery","charts-bundle"),"1.0.1",true);
 
 		wp_enqueue_style("thing-style",
 			THING_URL."/css/thing.css");

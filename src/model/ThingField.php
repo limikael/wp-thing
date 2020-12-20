@@ -15,6 +15,13 @@ class ThingField {
 	}
 
 	/**
+	 * Get label.
+	 */
+	public function getLabel() {
+		return $this->data["name"];
+	}
+
+	/**
 	 * Key
 	 */
 	public function getKey() {
@@ -158,5 +165,15 @@ class ThingField {
 	 */
 	public function getTabName() {
 		return $this->data["tab"];
+	}
+
+	/**
+	 * Is this field loggable?
+	 */
+	public function isLoggable() {
+		return (
+			array_key_exists("log",$this->data) && 
+			$this->data["log"]
+		);
 	}
 }

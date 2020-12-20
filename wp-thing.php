@@ -24,4 +24,24 @@ require_once(__DIR__."/ext/CMB2/init.php");
 require_once(__DIR__."/ext/cmb2-tabs/plugin.php");
 require_once(__DIR__."/src/plugin/ThingPlugin.php");
 
+/**
+ * Handle plugin activation.
+ *
+ * @return void
+ */
+function thing_activate() {
+	thing\ThingPlugin::instance()->activate();
+}
+register_activation_hook( __FILE__, 'thing_activate' );
+
+/**
+ * Handle plugin uninstall.
+ *
+ * @return void
+ */
+function thing_uninstall() {
+	thing\ThingPlugin::instance()->uninstall();
+}
+register_uninstall_hook( __FILE__, 'thing_uninstall' );
+
 thing\ThingPlugin::instance();
