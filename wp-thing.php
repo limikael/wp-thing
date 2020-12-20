@@ -21,6 +21,7 @@ define('THING_URL',plugin_dir_url(__FILE__));
 define('THING_PATH',plugin_dir_path(__FILE__));
 
 require_once(__DIR__."/ext/CMB2/init.php");
+require_once(__DIR__."/ext/cmb2-tabs/plugin.php");
 require_once(__DIR__."/src/plugin/ThingPlugin.php");
 
 thing\ThingPlugin::instance();

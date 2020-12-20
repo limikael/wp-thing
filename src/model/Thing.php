@@ -107,7 +107,7 @@ class Thing {
 		$saveData=array();
 
 		foreach ($this->fields as $field) {
-			if ($field->isUpdated())
+			if ($field->isUpdated() && !$field->isReadOnly())
 				$saveData[$field->getKey()]=json_encode($field->getValue());
 		}
 

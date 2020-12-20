@@ -66,10 +66,21 @@ class ThingField {
 				);
 				break;
 
+			case "number":
+			case "number-not-nan":
+				$fieldData=array(
+					"type"=>"text_small",
+					"name"=>$this->data["name"],
+					"id"=>$id
+				);
+				break;
+
 			default:
 				throw new \Exception("Unknown field type: ".$this->data["type"]);
 				break;
 		}
+
+		$fieldData['attributes']=array();
 
 		if ($this->data["conditionKey"]) {
 			$fieldData['attributes']=array(
@@ -77,6 +88,9 @@ class ThingField {
 				'data-conditional-value'=>wp_json_encode($this->data["conditionValue"])
 			);
 		}
+
+		if ($this->data["readonly"])
+			$fieldData["attributes"]["readonly"]=TRUE;
 
 		return $fieldData;
 	}
@@ -120,6 +134,16 @@ class ThingField {
 
 		$this->data["value"]=$value;
 		$this->updated=TRUE;
+	}
+
+	/**
+	 * Is this a readonly field.
+	 */
+	public function isReadOnly() {
+		return (
+			array_key_exists("readonly",$this->data) && 
+			$this->data["readonly"]
+		);
 	}
 
 	/**
