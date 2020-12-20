@@ -28,31 +28,33 @@ class ThingController extends Singleton {
 			'show_names'   => true,
 		);
 
-		$cmb = new_cmb2_box($box_options);
+		if ($currentThing->isOnline()) {
+			$cmb = new_cmb2_box($box_options);
 
-		$tabs_setting = array(
-			'config' => $box_options,
-			'tabs'   => array()
-		);
-
-		foreach ($currentThing->getTabNames() as $tabName) {
-			$tab=array(
-				"id"=>sanitize_title($tabName),
-				"title"=>$tabName,
-				"fields"=>array(),
+			$tabs_setting = array(
+				'config' => $box_options,
+				'tabs'   => array()
 			);
 
-			foreach ($currentThing->getFieldsByTabName($tabName) as $field)
-				$tab["fields"][]=$field->getCmbDef();
+			foreach ($currentThing->getTabNames() as $tabName) {
+				$tab=array(
+					"id"=>sanitize_title($tabName),
+					"title"=>$tabName,
+					"fields"=>array(),
+				);
 
-			$tabs_setting["tabs"][]=$tab;
+				foreach ($currentThing->getFieldsByTabName($tabName) as $field)
+					$tab["fields"][]=$field->getCmbDef();
+
+				$tabs_setting["tabs"][]=$tab;
+			}
+
+			$cmb->add_field(array(
+				'id'   => '__tabs',
+				'type' => 'tabs',
+				'tabs' => $tabs_setting,
+			));
 		}
-
-		$cmb->add_field(array(
-			'id'   => '__tabs',
-			'type' => 'tabs',
-			'tabs' => $tabs_setting,
-		));
 	}
 
 	public function cmb2_save_post_fields($id) {

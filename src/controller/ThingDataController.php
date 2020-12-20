@@ -126,11 +126,13 @@ class ThingDataController extends Singleton {
 	}
 
 	public function add_meta_boxes() {
-		add_meta_box(
-			'thing-chart',"Chart",
-			array($this,"thing_chart_box"),
-			'thing','normal'
-		);
+		if (Thing::getCurrent() && Thing::getCurrent()->isOnline()) {
+			add_meta_box(
+				'thing-chart',"Chart",
+				array($this,"thing_chart_box"),
+				'thing','normal'
+			);
+		}
 	}
 
 	public function thing_chart_box() {

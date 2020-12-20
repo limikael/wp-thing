@@ -80,4 +80,37 @@ class ThingPlugin extends Singleton {
 
 		return $res;
 	}
+
+	public function initBrokerData() {
+		if ($this->haveBrokerData)
+			return;
+
+		$this->haveBrokerData=TRUE;
+
+		try {
+			$this->brokerData=$this->brokerCall("");
+		}
+
+		catch (\Exception $e) {
+			$this->brokerData=NULL;
+		}
+	}
+
+	public function isBrokerOnline() {
+		$this->initBrokerData();
+
+		if ($this->brokerData)
+			return TRUE;
+
+		return FALSE;
+	}
+
+	public function isDeviceOnline($deviceTitle) {
+		$this->initBrokerData();
+
+		if (!$this->isBrokerOnline())
+			return FALSE;
+
+		return in_array($deviceTitle,$this->brokerData["devices"]);
+	}
 }

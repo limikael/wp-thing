@@ -16,6 +16,13 @@ class Thing {
 	}
 
 	/**
+	 * Is the device online?
+	 */
+	public function isOnline() {
+		return ThingPlugin::instance()->isDeviceOnline($this->post->post_title);
+	}
+
+	/**
 	 * Get thing by id.
 	 */
 	static function getByTitle($title) {
