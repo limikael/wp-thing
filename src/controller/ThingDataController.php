@@ -93,6 +93,15 @@ class ThingDataController extends Singleton {
 	}
 
 	public function wp_ajax_thingdata() {
+		$key=get_option("thing_apikey");
+		if ($key && $_REQUEST["key"]!=$key) {
+			status_header(403,"Incorrect api key.");
+			echo "Unauthorized...";
+			wp_die("Bad API key","Unauthorized",array(
+				"response"=>403
+			));
+		}
+
 		$thing=Thing::getByTitle($_REQUEST["id"]);
 
 		if (!$thing)

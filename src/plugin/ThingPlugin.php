@@ -21,9 +21,26 @@ class ThingPlugin extends Singleton {
 
 		add_filter("cmb2_meta_box_url",array($this,"cmb2_meta_box_url"));
 		add_action("admin_enqueue_scripts",array($this,"enqueue_scripts"));
+		add_action("admin_notices",array($this,"admin_notices"));
 
 		if (is_admin())
 			ThingSettings::instance();
+	}
+
+	public function admin_notices() {
+		global $pagenow;
+
+		if ($pagenow=="edit.php" && $_REQUEST["post_type"]=="thing") {
+			$this->initBrokerData();
+
+			if ($this->brokerError) {
+				$t=new Template(__DIR__."/../tpl/thing_notice.tpl.php");
+				$t->display(array(
+					"type"=>"warning",
+					"message"=>$this->brokerError
+				));
+			}
+		}
 	}
 
 	public function activate() {
@@ -59,7 +76,7 @@ class ThingPlugin extends Singleton {
 	}
 
 	public function brokerCall($url, $params=array()) {
-		$brokerUrl=ThingSettings::instance()->getBrokerUrl();
+		$brokerUrl=get_option("thing_brokerurl");
 		$url=$brokerUrl."/".$url."/?".http_build_query($params);
 
 		//error_log($url);
@@ -67,15 +84,27 @@ class ThingPlugin extends Singleton {
 		$curl=curl_init();
 		curl_setopt($curl,CURLOPT_URL,$url);
 		curl_setopt($curl,CURLOPT_RETURNTRANSFER,1);
-		/*curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-			"X-Api-Key: ysOIV9vNp1hS2tHC"
-		));*/
+
+		$key=get_option("thing_apikey");
+		if ($key) {
+			curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+				"X-Api-Key: ".$key
+			));
+		}
 
 		$encoded=curl_exec($curl);
+		$code=curl_getinfo($curl,CURLINFO_RESPONSE_CODE);
+
+		if (!$code)
+			throw new \Exception("Unable to reach broker, no response from server.");
+
+		if ($code!==200)
+			throw new \Exception("Unable to reach broker, response code: ".$code.".");
+
 		$res=json_decode($encoded,TRUE);
 
 		if (!$res/* || !array_key_exists("ok",$res) || !$res["ok"]*/) {
-			throw new \Exception("Unable to perform API call: ".$url.": ".$encoded);
+			throw new \Exception("Unable to reach broker: ".$url.": ".$encoded);
 		}
 
 		return $res;
@@ -89,10 +118,12 @@ class ThingPlugin extends Singleton {
 
 		try {
 			$this->brokerData=$this->brokerCall("");
+			$this->brokerError=NULL;
 		}
 
 		catch (\Exception $e) {
 			$this->brokerData=NULL;
+			$this->brokerError=$e->getMessage();
 		}
 	}
 
